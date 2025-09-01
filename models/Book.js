@@ -9,6 +9,7 @@ const bookSchema = new mongoose.Schema({
     enum: ["To Read", "Reading", "Completed"],
     default: "To Read",
   },
+  notes: {type: String, default: " "}, //notes
   image: String,
 
   createdAt: {

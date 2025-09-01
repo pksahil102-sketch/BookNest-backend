@@ -5,10 +5,12 @@ const cors = require("cors");
 const multer = require("multer");
 const Book = require("./models/Book");
 
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/notes" , require("./routes/notes"));
 
 app.get("/", (req, res) => {
   res.status(200).json({msg: "Welcome to BOOKNEST API 📚"});
