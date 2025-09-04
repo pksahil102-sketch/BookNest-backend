@@ -9,9 +9,10 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/notes", require("./routes/notes"));
 
 app.get("/", (req, res) => {
-  res.status(200).json({msg: "Welcome to BOOKNEST API 📚"});
+  res.status(200).json({ msg: "Welcome to BOOKNEST API 📚" });
 });
 
 // Get Req - get all books
@@ -20,7 +21,7 @@ app.get("/api/v1/books", async (req, res) => {
     const books = await Book.find();
     res.status(200).json(books);
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -29,14 +30,14 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
 
-const upload = multer({storage});
+const upload = multer({ storage });
 
 app.use("/uploads", express.static("uploads"));
 
 // Post request- create new book
 app.post("/api/v1/books", upload.single("image"), async (req, res) => {
   try {
-    const {title, author, genre, status, imageUrl} = req.body;
+    const { title, author, genre, status, imageUrl } = req.body;
     const newBook = new Book({
       title: title,
       author: author,
@@ -50,23 +51,23 @@ app.post("/api/v1/books", upload.single("image"), async (req, res) => {
     await newBook.save();
     res.json(newBook);
   } catch (err) {
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 });
 
 // Get a single
 app.get("/api/v1/books/:id", async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const book = await Book.findById(id);
 
     if (!book) {
-      return res.status(404).json({message: "Book not found"});
+      return res.status(404).json({ message: "Book not found" });
     }
 
     res.json(book);
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -76,14 +77,14 @@ const allowedStatus = ["To Read", "Reading", "Completed"];
 // Update a book
 app.put("/api/v1/books/:id", upload.single("image"), async (req, res) => {
   try {
-    const {id} = req.params;
-    const {title, author, genre, status, imageUrl} = req.body;
+    const { id } = req.params;
+    const { title, author, genre, status, imageUrl } = req.body;
 
     if (status && !allowedStatus.includes(status)) {
-      return res.status(400).json({error: "Invalid status value"});
+      return res.status(400).json({ error: "Invalid status value" });
     }
 
-    let updateData = {title, author, genre};
+    let updateData = { title, author, genre };
     if (status) updateData.status = status;
 
     // If file uploaded → keep format consistent with POST
@@ -100,54 +101,54 @@ app.put("/api/v1/books/:id", upload.single("image"), async (req, res) => {
     });
 
     if (!updatedBook) {
-      return res.status(404).json({message: "Book not found"});
+      return res.status(404).json({ message: "Book not found" });
     }
 
     res.json(updatedBook);
   } catch (error) {
-    res.status(400).json({message: error.message});
+    res.status(400).json({ message: error.message });
   }
 });
 
 // Delete a book
 app.delete("/api/v1/books/:id", async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const deleted = await Book.findByIdAndDelete(id);
 
     if (!deleted) {
-      return res.status(404).json({message: "Book not found"});
+      return res.status(404).json({ message: "Book not found" });
     }
 
-    res.json({message: "Book deleted successfully"});
+    res.json({ message: "Book deleted successfully" });
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({ message: error.message });
   }
 });
 
 // To update only the status
 app.patch("/api/v1/books/:id/status", async (req, res) => {
   try {
-    const {status} = req.body;
+    const { status } = req.body;
 
-   //to validate status
+    //to validate status
     if (!allowedStatus.includes(status)) {
-      return res.status(400).json({error: "Invalid status value"});
+      return res.status(400).json({ error: "Invalid status value" });
     }
 
     const updatedBook = await Book.findByIdAndUpdate(
       req.params.id,
-      {status},
-      {new: true}
+      { status },
+      { new: true }
     );
 
     if (!updatedBook) {
-      return res.status(404).json({message: "Book not found"});
+      return res.status(404).json({ message: "Book not found" });
     }
 
     res.json(updatedBook);
   } catch (error) {
-    res.status(500).json({error: error.message});
+    res.status(500).json({ error: error.message });
   }
 });
 
